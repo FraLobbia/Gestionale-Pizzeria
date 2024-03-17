@@ -1,0 +1,103 @@
+﻿@model IEnumerable<GestionalePizzeria.Models.Product>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h1>Menù</h1>
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        @Html.ActionLink("Aggiungi nuovo prodotto", "Create", null, new { @class = "btn btn-success" })
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Nome)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Immagine)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProductDetails)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Prezzo)
+        </th>
+        @if (User.IsInRole("Admin"))
+        {
+            <th>
+                @Html.DisplayNameFor(model => model.TempoPreparazione)
+            </th>
+        }
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>
+            <td>
+                <img src="@item.Immagine" alt="Alternate Text" />
+            </td>
+            <td>
+                @foreach (var ingredient in item.ProductDetails)
+                {
+                    <p>@ingredient.Ingredient.Name</p>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Prezzo)
+            </td>
+            @if (User.IsInRole("Admin"))
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.TempoPreparazione)
+                </td>
+            }
+            <td>
+                @if (User.IsInRole("Admin"))
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = item.IdProduct }, new { @class = "btn btn-warning" })
+                    @Html.ActionLink("Details", "Details", new { id = item.IdProduct }, new { @class = "btn btn-info" })
+                    @Html.ActionLink("Delete", "Delete", new { id = item.IdProduct }, new { @class = "btn btn-danger" })
+                }
+
+                <button class="btn btn-success" onclick="addToCart(@item.IdProduct)">Aggiungi al carrello</button>
+            </td>
+        </tr>
+    }
+
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval");
+    <script>
+        function addToCart(id) {
+            // Ottieni l'URL corrente della pagina
+            const currentUrl = window.location.href;
+
+            // Estrai il protocollo, il dominio e la porta dall'URL corrente
+            const url = new URL(currentUrl);
+            const protocol = url.protocol;
+            const host = url.host;
+
+            // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
+            const baseUrl = protocol + '//' + host;
+            // Concatena l'URL di base con il percorso relativo al tuo endpoint
+            const endpoint = '/Orders/addToCart/' + id;
+            const fullUrl = baseUrl + endpoint;
+
+
+            fetch(fullUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                });
+        }
+    </script>
+}

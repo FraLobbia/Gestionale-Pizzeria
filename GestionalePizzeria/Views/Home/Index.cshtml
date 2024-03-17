@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    ViewBag.Message = TempData["Message"];
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Message
+    </div>
+}
+
+<main>
+    <section class="row" aria-labelledby="aspnetTitle">
+        <h1>Gestionale Pizzeria</h1>
+        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+        <img class="border border-3" src="https://www.pizzeriadamichelefirenze.it/wp-content/uploads/2018/03/pizze-head-2-1024x576.jpg" alt="Le pizze | Antica Pizzeria Da Michele Firenze"/>
+    </section>
+
+
+                                                     
+</main>
