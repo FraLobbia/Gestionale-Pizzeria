@@ -31,12 +31,13 @@ namespace GestionalePizzeria.Models
         public decimal Prezzo { get; set; }
         //=======================================================================================================
         [Required]
-
         public TimeSpan TempoPreparazione { get; set; }
         //======================================================================================================= 
         // necessaria per il form di creazione
         [NotMapped]
         public int[] SelectedIngredientIDs { get; set; }
+        [NotMapped]
+        public int Quantita { get; set; }
         //=======================================================================================================
         [Display(Name = "Ingredienti")]
         public virtual List<ProductDetail> ProductDetails { get; set; }

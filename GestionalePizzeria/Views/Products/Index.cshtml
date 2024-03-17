@@ -60,44 +60,108 @@
                 </td>
             }
             <td>
-                @if (User.IsInRole("Admin"))
-                {
-                    @Html.ActionLink("Edit", "Edit", new { id = item.IdProduct }, new { @class = "btn btn-warning" })
-                    @Html.ActionLink("Details", "Details", new { id = item.IdProduct }, new { @class = "btn btn-info" })
-                    @Html.ActionLink("Delete", "Delete", new { id = item.IdProduct }, new { @class = "btn btn-danger" })
-                }
+                <div class="d-flex flex-column">
 
-                <button class="btn btn-success" onclick="addToCart(@item.IdProduct)">Aggiungi al carrello</button>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { id = item.IdProduct }, new { @class = "btn btn-warning m-0" })
+                        @Html.ActionLink("Details", "Details", new { id = item.IdProduct }, new { @class = "btn btn-info m-0" })
+                        @Html.ActionLink("Delete", "Delete", new { id = item.IdProduct }, new { @class = "btn btn-danger m-0" })
+                    }
+
+                    <button class="btn btn-success mb-1" onclick="AddToCart(@item.IdProduct)">Aggiungi al carrello</button>
+                    <div id="qntSelector@(item.IdProduct)" class="container-fluid d-none">
+                        <div class="row">
+
+                            <button class="col btn btn-outline-danger m-0"
+                                    onclick="removeOne(@item.IdProduct)">
+                                -1
+                            </button>
+                            <div class="col" >
+                                <input id="quantita@(item.IdProduct)" disabled type="text" name="name" value="1" class="h-100 text-center" />
+                            </div>
+                            <button class="col btn btn-outline-success m-0"
+                                    onclick="addOne(@item.IdProduct)">
+                                +1
+                            </button>
+
+                        </div>
+                    </div>
             </td>
         </tr>
-    }
-
-</table>
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval");
-    <script>
-        function addToCart(id) {
-            // Ottieni l'URL corrente della pagina
-            const currentUrl = window.location.href;
-
-            // Estrai il protocollo, il dominio e la porta dall'URL corrente
-            const url = new URL(currentUrl);
-            const protocol = url.protocol;
-            const host = url.host;
-
-            // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
-            const baseUrl = protocol + '//' + host;
-            // Concatena l'URL di base con il percorso relativo al tuo endpoint
-            const endpoint = '/Orders/addToCart/' + id;
-            const fullUrl = baseUrl + endpoint;
-
-
-            fetch(fullUrl)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                });
         }
-    </script>
-}
+
+    </table>
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval");
+        <script>
+
+
+
+            function AddToCart(id) {
+
+                // gestione visibilità del selettore di quantità ===================
+                const quantita = document.getElementById('quantita' + id).value;
+                const qntSelector = document.getElementById('qntSelector' + id);
+                qntSelector.classList.remove('d-none');
+                //==================================================================
+
+                // Ottieni l'URL corrente della pagina
+                const currentUrl = window.location.href;
+                // Estrai il protocollo, il dominio e la porta dall'URL corrente
+                const url = new URL(currentUrl);
+                const protocol = url.protocol;
+                const host = url.host;
+                // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
+                const baseUrl = protocol + '//' + host;
+
+
+                //if (quantita == 0) {
+                //    fetch(baseUrl + '/Orders/removeFromCart/' + id)
+                //        .then(response => response.json())
+                //        .then(data => {
+                //            console.log(data);
+                //        });
+                //}
+                //else if (quantita => 1)
+                //{
+                    // Concatena l'URL di base con il percorso relativo al tuo endpoint
+                    const endpoint = '/Orders/addToCart/' + id + '?quantity=' + quantita;
+                    fullUrl = baseUrl + endpoint;
+                /*}*/
+
+                fetch(fullUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    });
+            };
+
+            function addOne(id) {
+                const quantita = document.getElementById('quantita' + id);
+                quantita.value = parseInt(quantita.value) + 1; 
+                AddToCart(id)
+            };
+
+            function removeOne(id) {
+                const quantita = document.getElementById('quantita' + id);
+                const qntSelector = document.getElementById('qntSelector' + id);
+
+                if (quantita == 0) {
+                    qntSelector.classList.add('d-none');
+
+                    // rimuovo dal carrello
+                    fetch(baseUrl + '/Orders/removeFromCart/' + id)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+                            });
+                } else {
+                    qntSelector.classList.remove('d-none');
+                    quantita.value = parseInt(quantita.value) - 1;
+                }
+            }
+
+        </script>
+    }

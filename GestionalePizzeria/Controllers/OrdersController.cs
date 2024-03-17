@@ -6,12 +6,13 @@ using System.Net;
 using System.Web.Mvc;
 namespace GestionalePizzeria.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class OrdersController : Controller
     {
         private ModelDbContext db = new ModelDbContext();
 
         // GET: Orders
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
             var orders = db.Orders.Include(o => o.User);
@@ -19,6 +20,7 @@ namespace GestionalePizzeria.Controllers
         }
 
         // GET: Orders/Details/5
+        [Authorize(Roles = "User,Admin")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -34,7 +36,7 @@ namespace GestionalePizzeria.Controllers
         }
 
         // GET: Orders/Create
-        [Authorize(Roles = "User,Admin")]
+
         public ActionResult Create()
         {
             ViewBag.Carrello = (List<Product>)Session["Carrello"];
@@ -47,7 +49,7 @@ namespace GestionalePizzeria.Controllers
         // Per altri dettagli, vedere https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "User,Admin")]
+
         public ActionResult Create([Bind(Include = "Note")] Order order)
         {
             ModelState.Remove("IdUser,OrarioOrdine,Address,isDelivered,Total");
@@ -55,7 +57,7 @@ namespace GestionalePizzeria.Controllers
             if (!ModelState.IsValid)
             {
 
-                order.IdUser = ((User)Session["User"]).IdUser;
+                order.IdUser = (int)Session["User"];
                 order.OrarioOrdine = System.DateTime.Now;
                 order.isDelivered = false;
                 order.Address = db.Users.Find(order.IdUser).Address;
@@ -79,6 +81,7 @@ namespace GestionalePizzeria.Controllers
         }
 
         // GET: Orders/Edit/5
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -99,6 +102,7 @@ namespace GestionalePizzeria.Controllers
         // Per altri dettagli, vedere https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit([Bind(Include = "IdOrder,OrarioOrdine,Address,Note,isDelivered,IdUser")] Order order)
         {
             if (ModelState.IsValid)
@@ -149,30 +153,61 @@ namespace GestionalePizzeria.Controllers
         //  /_\   / __| \ \ / / | \| |  / __|
         // / _ \  \__ \  \ V /  | .` | | (__ 
         ///_/ \_\ |___/   |_|   |_|\_|  \___|
-        [AllowAnonymous]
-        public JsonResult addToCart(int id)
+        [Authorize(Roles = "User,Admin")]
+        public JsonResult addToCart(int id, int quantity = 1)
         {
+            // se il carrello non esiste lo inizializzo come lista di prodotti
+            Session["Carrello"] = Session["Carrello"] ?? new List<Product>();
+
             // recupero il prodotto dal database
             Product product = db.Products.Find(id);
 
+            // controllo che nel carrello non ci sia già il prodotto, se c'è ne aggiorno la
+            // quantità e ritorno il carrello aggiornato in json
+            Product productInCart = ((List<Product>)Session["Carrello"]).Find(p => p.IdProduct == id);
+
+            if (productInCart != null)
+            {
+                productInCart.Quantita += quantity;
+                return Json(Session["Carrello"], JsonRequestBehavior.AllowGet);
+            }
+
+            // se invece non c'è
             // definisco solo le proprietà che mi interessano
-            // passaggio necessario per evitare problemi di conversione in json
-            // in quanto il modello Product ha una lista di ProductDetail che
-            // a sua volta ha una lista di Product
+            // *** passaggio necessario per evitare problemi di conversione in json
+            // *** in quanto il modello Product ha una lista di ProductDetail che
+            // *** a sua volta ha una lista di Product
             Product productToJson = new Product
             {
                 IdProduct = product.IdProduct,
                 Nome = product.Nome,
                 Immagine = product.Immagine,
                 Prezzo = product.Prezzo,
-                TempoPreparazione = product.TempoPreparazione
+                TempoPreparazione = product.TempoPreparazione,
+                Quantita = quantity
             };
-
-            // se il carrello non esiste lo inizializzo come lista di prodotti
-            Session["Carrello"] = Session["Carrello"] ?? new List<Product>();
 
             // aggiungo il prodotto al carrello in sessione
             ((List<Product>)Session["Carrello"]).Add(productToJson);
+
+            // ritorno il carrello in json
+            return Json(Session["Carrello"], JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize(Roles = "User,Admin")]
+        public JsonResult removeFromCart(int id)
+        {
+            // recupero il carrello dalla sessione
+            List<Product> carrello = (List<Product>)Session["Carrello"];
+
+            // recupero il prodotto da rimuovere
+            Product product = carrello.Find(p => p.IdProduct == id);
+
+            // rimuovo il prodotto dal carrello
+            carrello.Remove(product);
+
+            // aggiorno il carrello in sessione
+            Session["Carrello"] = carrello;
 
             // ritorno il carrello in json
             return Json(Session["Carrello"], JsonRequestBehavior.AllowGet);

@@ -17,6 +17,7 @@ namespace GestionalePizzeria.Controllers
         // GET: Users
         public ActionResult Index()
         {
+
             return View(db.Users.ToList());
         }
 
@@ -152,11 +153,15 @@ namespace GestionalePizzeria.Controllers
 
             if (ModelState.IsValid)
             {
-                var usr = db.Users.Where(u => u.Email == user.Email && u.Password == user.Password).FirstOrDefault();
+                User usr = db.Users.Where(u => u.Email == user.Email && u.Password == user.Password).FirstOrDefault();
                 if (usr != null)
                 {
                     FormsAuthentication.SetAuthCookie(usr.Email, false);
-                    Session["User"] = usr;
+
+
+                    Session["User"] = usr.IdUser;
+
+
                     TempData["Message"] = "Login come " + usr.Role + " effettuato con successo";
                     return RedirectToAction("Index", "Home");
                 }
