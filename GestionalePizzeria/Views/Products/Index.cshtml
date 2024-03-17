@@ -69,24 +69,25 @@
                         @Html.ActionLink("Delete", "Delete", new { id = item.IdProduct }, new { @class = "btn btn-danger m-0" })
                     }
 
-                    <button class="btn btn-success mb-1" onclick="AddToCart(@item.IdProduct)">Aggiungi al carrello</button>
+                    <button class="btn btn-success mb-1" onclick="addOne(@item.IdProduct)">Aggiungi al carrello</button>
                     <div id="qntSelector@(item.IdProduct)" class="container-fluid d-none">
                         <div class="row">
 
-                            <button class="col btn btn-outline-danger m-0"
+                            <button class="col-3 btn btn-outline-danger m-0"
                                     onclick="removeOne(@item.IdProduct)">
                                 -1
                             </button>
-                            <div class="col" >
-                                <input id="quantita@(item.IdProduct)" disabled type="text" name="name" value="1" class="h-100 text-center" />
+                            <div class="col-6" >
+                                <input id="quantita@(item.IdProduct)" disabled type="text" name="name" value="0" class="h-100 text-center" />
                             </div>
-                            <button class="col btn btn-outline-success m-0"
+                            <button class="col-3 btn btn-outline-success m-0"
                                     onclick="addOne(@item.IdProduct)">
                                 +1
                             </button>
 
                         </div>
                     </div>
+                </div>
             </td>
         </tr>
         }
@@ -97,9 +98,18 @@
         @Scripts.Render("~/bundles/jqueryval");
         <script>
 
+            // OTTENGO L'URL CORRENTE ANCHE SE è LOCALHOST ==========================================
+            // Ottieni l'URL corrente della pagina
+            const currentUrl = window.location.href;
+            // Estrai il protocollo, il dominio e la porta dall'URL corrente
+            const url = new URL(currentUrl);
+            const protocol = url.protocol;
+            const host = url.host;
+            // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
+            const baseUrl = protocol + '//' + host;
+            // ========================================================================================
 
-
-            function AddToCart(id) {
+            function updateCartQuantityCall(id) {
 
                 // gestione visibilità del selettore di quantità ===================
                 const quantita = document.getElementById('quantita' + id).value;
@@ -107,29 +117,10 @@
                 qntSelector.classList.remove('d-none');
                 //==================================================================
 
-                // Ottieni l'URL corrente della pagina
-                const currentUrl = window.location.href;
-                // Estrai il protocollo, il dominio e la porta dall'URL corrente
-                const url = new URL(currentUrl);
-                const protocol = url.protocol;
-                const host = url.host;
-                // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
-                const baseUrl = protocol + '//' + host;
+                // Concatena l'URL di base con il percorso relativo al tuo endpoint
+                const endpoint = '/Orders/updateCartQuantity/' + id + '?quantity=' + quantita;
+                fullUrl = baseUrl + endpoint;
 
-
-                //if (quantita == 0) {
-                //    fetch(baseUrl + '/Orders/removeFromCart/' + id)
-                //        .then(response => response.json())
-                //        .then(data => {
-                //            console.log(data);
-                //        });
-                //}
-                //else if (quantita => 1)
-                //{
-                    // Concatena l'URL di base con il percorso relativo al tuo endpoint
-                    const endpoint = '/Orders/addToCart/' + id + '?quantity=' + quantita;
-                    fullUrl = baseUrl + endpoint;
-                /*}*/
 
                 fetch(fullUrl)
                     .then(response => response.json())
@@ -141,14 +132,16 @@
             function addOne(id) {
                 const quantita = document.getElementById('quantita' + id);
                 quantita.value = parseInt(quantita.value) + 1; 
-                AddToCart(id)
+                updateCartQuantityCall(id)
             };
 
             function removeOne(id) {
                 const quantita = document.getElementById('quantita' + id);
+                quantita.value = parseInt(quantita.value) - 1;
+
                 const qntSelector = document.getElementById('qntSelector' + id);
 
-                if (quantita == 0) {
+                if (quantita.value <= 0) {
                     qntSelector.classList.add('d-none');
 
                     // rimuovo dal carrello
@@ -159,7 +152,7 @@
                             });
                 } else {
                     qntSelector.classList.remove('d-none');
-                    quantita.value = parseInt(quantita.value) - 1;
+                    updateCartQuantityCall(id)
                 }
             }
 

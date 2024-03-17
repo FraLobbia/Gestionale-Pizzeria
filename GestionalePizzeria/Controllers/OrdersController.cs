@@ -154,7 +154,7 @@ namespace GestionalePizzeria.Controllers
         // / _ \  \__ \  \ V /  | .` | | (__ 
         ///_/ \_\ |___/   |_|   |_|\_|  \___|
         [Authorize(Roles = "User,Admin")]
-        public JsonResult addToCart(int id, int quantity = 1)
+        public JsonResult updateCartQuantity(int id, int quantity = 1)
         {
             // se il carrello non esiste lo inizializzo come lista di prodotti
             Session["Carrello"] = Session["Carrello"] ?? new List<Product>();
@@ -168,7 +168,7 @@ namespace GestionalePizzeria.Controllers
 
             if (productInCart != null)
             {
-                productInCart.Quantita += quantity;
+                productInCart.Quantita = quantity;
                 return Json(Session["Carrello"], JsonRequestBehavior.AllowGet);
             }
 
