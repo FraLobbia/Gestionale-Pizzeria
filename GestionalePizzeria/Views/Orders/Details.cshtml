@@ -49,10 +49,26 @@
         <dd>
             @Html.DisplayFor(model => model.isDelivered)
         </dd>
+        <dt>
+            Prodotti nell'ordine:
+        </dt>
+        <dd>
+            @if (ViewBag.Prodotti != null)
+            {
+                foreach (KeyValuePair<GestionalePizzeria.Models.Product, int> item in ViewBag.Prodotti)
+                {
+                    <p>@item.Key.Nome: @item.Value</p>
+                }
+            }
+        </dd>
 
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.IdOrder }) |
-    @Html.ActionLink("Back to List", "Index")
+
+        @Html.ActionLink("Edit", "Edit", new { id = Model.IdOrder },new {@class = "btn btn-warning"})
+        @Html.ActionLink("Delete", "Delete", new { id = Model.IdOrder }, new { @class = "btn btn-danger" })
+
+
+    @Html.ActionLink("Back to List", "Index", null, new {@class = "btn btn-primary"})
 </p>

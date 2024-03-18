@@ -47,9 +47,9 @@
             @Html.DisplayFor(modelItem => item.isDelivered)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.IdOrder }) |
-            @Html.ActionLink("Details", "Details", new { id=item.IdOrder }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.IdOrder })
+            @Html.ActionLink("Edit", "Edit", new { id = item.IdOrder }, new { @class = "btn btn-warning m-0" })
+            @Html.ActionLink("Dettagli Ordine", "Details", new { id = item.IdOrder }, new { @class = "btn btn-info m-0" })
+            @Html.ActionLink("Delete", "Delete", new { id = item.IdOrder }, new { @class = "btn btn-danger m-0" })
         </td>
     </tr>
 }

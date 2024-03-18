@@ -32,6 +32,25 @@ namespace GestionalePizzeria.Controllers
             {
                 return HttpNotFound();
             }
+            // ottengo la lista dei prodotti dell'ordine e la quantità
+            var ListaProdotti = db.OrderDetails.Where(od => od.IdOrder == id).Include(od => od.Product).ToList();
+
+            //ottengo un dictionary con i prodotti non duplicati e la quantità
+            Dictionary<Product, int> prodotti = new Dictionary<Product, int>();
+
+            foreach (var item in ListaProdotti)
+            {
+                if (prodotti.ContainsKey(item.Product))
+                {
+                    prodotti[item.Product] += item.Quantita;
+                }
+                else
+                {
+                    prodotti.Add(item.Product, item.Quantita);
+                }
+            }
+
+            ViewBag.Prodotti = prodotti;
             return View(order);
         }
 
@@ -68,12 +87,20 @@ namespace GestionalePizzeria.Controllers
                     db.OrderDetails.Add(new OrderDetail
                     {
                         IdOrder = order.IdOrder,
-                        IdProduct = item.IdProduct
+                        IdProduct = item.IdProduct,
+                        Quantita = item.Quantita
                     });
                 }
 
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home"); // todo: rendere disponibile a user solo la propria lista ordini
+                }
             }
 
             ViewBag.IdUser = new SelectList(db.Users, "IdUser", "Name", order.IdUser);
