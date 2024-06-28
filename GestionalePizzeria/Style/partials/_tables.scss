@@ -1,0 +1,27 @@
+﻿.table {
+    @extend .table-secondary;
+    @extend .table-striped;
+    @extend .table-bordered
+
+}
+
+dt {
+    margin-top: 2rem;
+}
+
+td, th {
+    @extend .text-center;
+}
+
+/*td:last-of-type {
+
+    @extend .d-flex;
+    @extend .flex-column;
+    @extend .justify-content-center;
+    //@extend .align-items-center;
+    row-gap: 1rem;
+
+    .btn {
+        margin: 0;
+    }
+}*/

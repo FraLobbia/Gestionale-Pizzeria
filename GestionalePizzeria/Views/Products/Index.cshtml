@@ -13,45 +13,57 @@
     </p>
 }
 <table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Nome)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Immagine)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ProductDetails)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Prezzo)
-        </th>
-        @if (User.IsInRole("Admin"))
-        {
+    @*<tr>
+
             <th>
-                @Html.DisplayNameFor(model => model.TempoPreparazione)
+                @Html.DisplayNameFor(model => model.Immagine)
+                @Html.DisplayNameFor(model => model.Nome)
             </th>
-        }
-        <th></th>
-    </tr>
+             <th>
+                @Html.DisplayNameFor(model => model.ProductDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Prezzo)
+            </th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.TempoPreparazione)
+                </th>
+            }
+            <th></th>
+        </tr>*@
 
     @foreach (var item in Model)
     {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
+            <td class="row">
+                <div class="col-4">
+                    <img class="mw-100" src="@item.Immagine" alt="Alternate Text" />
+                </div>
+                <div class="col-8">
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center">
+                        <h3 class="mt-2 fs-2">
+                            @Html.DisplayFor(modelItem => item.Nome)
+                        </h3>
+
+                        <p class="text-muted">
+                            @for (int i = 0; i < item.ProductDetails.Count; i++)
+                            {
+                                <span>@item.ProductDetails[i].Ingredient.Name @(i < item.ProductDetails.Count - 1 ? ", " : "")</span>
+                            }
+                        </p>
+                    </div>
+                </div>
             </td>
+
             <td>
-                <img src="@item.Immagine" alt="Alternate Text" />
-            </td>
-            <td>
-                @foreach (var ingredient in item.ProductDetails)
-                {
-                    <p>@ingredient.Ingredient.Name</p>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Prezzo)
+  
+                    <p class="h-100 d-flex flex-column justify-content-center align-items-center">
+                        @Html.DisplayFor(modelItem => item.Prezzo) €
+                    </p>
+              
+                   
             </td>
             @if (User.IsInRole("Admin"))
             {
@@ -77,7 +89,7 @@
                                     onclick="removeOne(@item.IdProduct)">
                                 -1
                             </button>
-                            <div class="col-6" >
+                            <div class="col-6">
                                 <input id="quantita@(item.IdProduct)" disabled type="text" name="name" value="0" class="h-100 text-center" />
                             </div>
                             <button class="col-3 btn btn-outline-success m-0"
@@ -90,71 +102,71 @@
                 </div>
             </td>
         </tr>
-        }
+    }
 
-    </table>
+</table>
 
-    @section Scripts {
-        @Scripts.Render("~/bundles/jqueryval");
-        <script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval");
+    <script>
 
-            // OTTENGO L'URL CORRENTE ANCHE SE è LOCALHOST ==========================================
-            // Ottieni l'URL corrente della pagina
-            const currentUrl = window.location.href;
-            // Estrai il protocollo, il dominio e la porta dall'URL corrente
-            const url = new URL(currentUrl);
-            const protocol = url.protocol;
-            const host = url.host;
-            // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
-            const baseUrl = protocol + '//' + host;
-            // ========================================================================================
+        // OTTENGO L'URL CORRENTE ANCHE SE è LOCALHOST ==========================================
+        // Ottieni l'URL corrente della pagina
+        const currentUrl = window.location.href;
+        // Estrai il protocollo, il dominio e la porta dall'URL corrente
+        const url = new URL(currentUrl);
+        const protocol = url.protocol;
+        const host = url.host;
+        // Costruisci l'URL di base utilizzando il protocollo, il dominio e la porta
+        const baseUrl = protocol + '//' + host;
+        // ========================================================================================
 
-            function updateCartQuantityCall(id) {
+        function updateCartQuantityCall(id) {
 
-                // gestione visibilità del selettore di quantità ===================
-                const quantita = document.getElementById('quantita' + id).value;
-                const qntSelector = document.getElementById('qntSelector' + id);
-                qntSelector.classList.remove('d-none');
-                //==================================================================
+            // gestione visibilità del selettore di quantità ===================
+            const quantita = document.getElementById('quantita' + id).value;
+            const qntSelector = document.getElementById('qntSelector' + id);
+            qntSelector.classList.remove('d-none');
+            //==================================================================
 
-                // Concatena l'URL di base con il percorso relativo al tuo endpoint
-                const endpoint = '/Orders/updateCartQuantity/' + id + '?quantity=' + quantita;
-                fullUrl = baseUrl + endpoint;
+            // Concatena l'URL di base con il percorso relativo al tuo endpoint
+            const endpoint = '/Orders/updateCartQuantity/' + id + '?quantity=' + quantita;
+            fullUrl = baseUrl + endpoint;
 
 
-                fetch(fullUrl)
+            fetch(fullUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                });
+        };
+
+        function addOne(id) {
+            const quantita = document.getElementById('quantita' + id);
+            quantita.value = parseInt(quantita.value) + 1;
+            updateCartQuantityCall(id)
+        };
+
+        function removeOne(id) {
+            const quantita = document.getElementById('quantita' + id);
+            quantita.value = parseInt(quantita.value) - 1;
+
+            const qntSelector = document.getElementById('qntSelector' + id);
+
+            if (quantita.value <= 0) {
+                qntSelector.classList.add('d-none');
+
+                // rimuovo dal carrello
+                fetch(baseUrl + '/Orders/removeFromCart/' + id)
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
                     });
-            };
-
-            function addOne(id) {
-                const quantita = document.getElementById('quantita' + id);
-                quantita.value = parseInt(quantita.value) + 1; 
+            } else {
+                qntSelector.classList.remove('d-none');
                 updateCartQuantityCall(id)
-            };
-
-            function removeOne(id) {
-                const quantita = document.getElementById('quantita' + id);
-                quantita.value = parseInt(quantita.value) - 1;
-
-                const qntSelector = document.getElementById('qntSelector' + id);
-
-                if (quantita.value <= 0) {
-                    qntSelector.classList.add('d-none');
-
-                    // rimuovo dal carrello
-                    fetch(baseUrl + '/Orders/removeFromCart/' + id)
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(data);
-                            });
-                } else {
-                    qntSelector.classList.remove('d-none');
-                    updateCartQuantityCall(id)
-                }
             }
+        }
 
-        </script>
-    }
+    </script>
+}

@@ -1,32 +1,25 @@
 ﻿@import "_bootstrapOverrides.scss";
-
+@import "partials/_tables.scss";
+@import "partials/_buttons.scss";
+@import "partials/_forms.scss";
+@import "partials/_navbar.scss";
+@import "partials/_footer.scss";
+@import "partials/_images.scss";
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+ES+Deco:wght@100..400&display=swap');
 
 .mw-80 {
     max-width: 80%;
     margin: 0 auto;
 }
 
-.table {
-    @extend .table-primary;
-    @extend .table-striped;
-    @extend .table-bordered
+%playwriteFont {
+    font-family: "Playwrite ES Deco", cursive;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
 }
 
-dt {
-    margin-top: 2rem;
-}
 
-td, th {
-    @extend .text-center;
-}
-
-.form-group {
-    margin-top: 2rem;
-}
-
-.btn {
-    margin-block: 2rem;
-}
 
 h1, h2 {
     padding-block: 2rem;
@@ -35,7 +28,18 @@ h1, h2 {
     font-size: 4rem;
     @extend .text-center;
     @extend .container-sfumato;
+    @extend %playwriteFont;
+
 }
+
+/*h3 {
+    padding-block: 1.5rem;
+    text-shadow: 2px 3px #7e6b6b;
+    font-weight: bolder;
+    font-size: 4rem;
+   @extend .text-center;
+   @extend .container-sfumato;
+}*/
 
 #title {
     display: contents;
@@ -45,24 +49,12 @@ h1, h2 {
     margin-inline: auto;
 }
 
-/*td:last-of-type {
-
-    @extend .d-flex;
-    @extend .flex-column;
-    @extend .justify-content-center;
-    //@extend .align-items-center;
-    row-gap: 1rem;
-
-    .btn {
-        margin: 0;
-    }
-}*/
-
 .form-horizontal, .dl-horizontal {
     @extend .container-sfumato;
 }
 // sfondo per il body
 body {
+    @extend %playwriteFont;
     background-image: url("https://www.consultapizza.com/wp-content/uploads/2018/04/come-scegliere-il-forno-per-pizzeria.jpg");
     background-size: cover;
     background-attachment: fixed;
@@ -87,23 +79,12 @@ body::before {
 
 // div con sfondo bianco e opacità e angoli arrotondati
 .container-sfumato {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.4);
     border-radius: 20px;
     padding: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #f5f5f5;
-    text-align: center;
-    padding: 10px;
-    color: #000000;
-    font-size: 1.5rem;
-    font-weight: bolder;
-    text-shadow: 1px 1px #7e6b6b;
-}
+
+
